@@ -1,9 +1,11 @@
 import sys
+import time
 from collections import defaultdict
 from heapq import heappush, heappop
 
 
 def solve_part_1(input):
+    start = time.time()
     heap = [((0, 0), 0)]
     location_costs = defaultdict(lambda: sys.maxsize)
     while len(heap) > 0:
@@ -16,11 +18,13 @@ def solve_part_1(input):
             if neighbor_cost < location_costs[neighbor]:
                 location_costs[neighbor] = neighbor_cost
                 heappush(heap,(neighbor, neighbor_cost))
-
+    end = time.time()
+    print("The time of execution for part1 is :", end-start)
     return location_costs[max(location_costs.keys())]
 
 
 def solve_part_2(input):
+    start = time.time()
     width, height = max(input.keys())
     height += 1
     width += 1
@@ -50,7 +54,8 @@ def solve_part_2(input):
             if neighbor_cost < location_costs[neighbor]:
                 location_costs[neighbor] = neighbor_cost
                 heappush(heap, (neighbor, neighbor_cost))
-
+    end = time.time()
+    print("The time of execution for part2 is :", end - start)
     return location_costs[max(location_costs.keys())]
 
 
