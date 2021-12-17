@@ -5,7 +5,7 @@ def solve_part_1(min_x, max_x, min_y, max_y):
     highest = 0
     count = 0
     for dx in range(1, max_x + 1):
-        for dy in range(min_y, 3000):
+        for dy in range(min_y, 300):
             x, y = 0, 0
             velocity_x = dx
             velocity_y = dy
