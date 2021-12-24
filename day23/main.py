@@ -50,6 +50,22 @@ def neighs(y, x):
     return [[y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]]
 
 
+def tuplify(apos, bpos, cpos, dpos):
+    return tuple(apos), tuple(bpos), tuple(cpos), tuple(dpos)
+
+
+def isfree(y, x, apos, bpos, cpos, dpos, open):
+    if (y, x) not in open:
+        return False
+    if (y, x) in apos:
+        return False
+    if (y, x) in bpos:
+        return False
+    if (y, x) in cpos:
+        return False
+    return (y, x) not in dpos
+
+
 def solve_part_1(lines):
     height = len(lines)
     width = len(lines[0])
@@ -75,10 +91,10 @@ def solve_part_1(lines):
                 open.add((y, x))
 
     blocking = {(1, 3), (1, 5), (1, 7), (1, 9)}
-    goala = [(2, 3), (3, 3)]
-    goalb = [(2, 5), (3, 5)]
-    goalc = [(2, 7), (3, 7)]
-    goald = [(2, 9), (3, 9)]
+    goal_a = [(2, 3), (3, 3)]
+    goal_b = [(2, 5), (3, 5)]
+    goal_c = [(2, 7), (3, 7)]
+    goal_d = [(2, 9), (3, 9)]
 
     a.sort()
     b.sort()
@@ -88,35 +104,21 @@ def solve_part_1(lines):
     states = [[0, a, b, c, d]]
     seen = {(tuple(a), tuple(b), tuple(c), tuple(d)): 0}
 
-    def tuplify(apos, bpos, cpos, dpos):
-        return (tuple(apos), tuple(bpos), tuple(cpos), tuple(dpos))
-
-    def isfree(y, x, apos, bpos, cpos, dpos):
-        if (y, x) not in open:
-            return False
-        if (y, x) in apos:
-            return False
-        if (y, x) in bpos:
-            return False
-        if (y, x) in cpos:
-            return False
-        return (y, x) not in dpos
-
     while True:
         energy, apos, bpos, cpos, dpos = heappop(states)
         allpos = [apos, bpos, cpos, dpos]
 
-        if apos == goala and bpos == goalb and cpos == goalc and dpos == goald:
+        if apos == goal_a and bpos == goal_b and cpos == goal_c and dpos == goal_d:
             return energy
 
         blocker = False
 
-        for i, yx in enumerate(apos):
-            y, x = yx
+        for i, coords in enumerate(apos):
+            y, x = coords
             if (y, x) in blocking:
                 blocker = True
                 for deltax in (-1, 1):
-                    if isfree(y, x + deltax, apos, bpos, cpos, dpos):
+                    if isfree(y, x + deltax, apos, bpos, cpos, dpos, open):
                         if i == 0:
                             dapos = sorted([(y, x + deltax), apos[1]])
                         else:
@@ -125,8 +127,8 @@ def solve_part_1(lines):
                         if t not in seen or seen[t] > energy + 1:
                             seen[t] = energy + 1
                             heappush(states, [energy + 1, dapos, list(bpos), list(cpos), list(dpos)])
-                if x == 3 and isfree(2, 3, apos, bpos, cpos, dpos):
-                    if not isfree(3, 3, apos, bpos, cpos, dpos) and not (3, 3) in apos:
+                if x == 3 and isfree(2, 3, apos, bpos, cpos, dpos, open):
+                    if not isfree(3, 3, apos, bpos, cpos, dpos, open) and not (3, 3) in apos:
                         continue
                     if i == 0:
                         dapos = sorted([(2, 3), apos[1]])
@@ -136,12 +138,12 @@ def solve_part_1(lines):
                     if t not in seen or seen[t] > energy + 1:
                         seen[t] = energy + 1
                         heappush(states, [energy + 1, list(dapos), list(bpos), list(cpos), list(dpos)])
-        for i, yx in enumerate(bpos):
-            y, x = yx
+        for i, coords in enumerate(bpos):
+            y, x = coords
             if (y, x) in blocking:
                 blocker = True
                 for deltax in (-1, 1):
-                    if isfree(y, x + deltax, apos, bpos, cpos, dpos):
+                    if isfree(y, x + deltax, apos, bpos, cpos, dpos, open):
                         if i == 0:
                             dbpos = sorted([(y, x + deltax), bpos[1]])
                         else:
@@ -150,8 +152,8 @@ def solve_part_1(lines):
                         if t not in seen or seen[t] > energy + 10:
                             seen[t] = energy + 10
                             heappush(states, [energy + 10, list(apos), dbpos, list(cpos), list(dpos)])
-                if x == 5 and isfree(2, 5, apos, bpos, cpos, dpos):
-                    if not isfree(3, 5, apos, bpos, cpos, dpos) and not (3, 5) in bpos:
+                if x == 5 and isfree(2, 5, apos, bpos, cpos, dpos, open):
+                    if not isfree(3, 5, apos, bpos, cpos, dpos, open) and not (3, 5) in bpos:
                         continue
                     if i == 0:
                         dbpos = sorted([(2, 5), bpos[1]])
@@ -161,12 +163,12 @@ def solve_part_1(lines):
                     if t not in seen or seen[t] > energy + 10:
                         seen[t] = energy + 10
                         heappush(states, [energy + 10, list(apos), list(dbpos), list(cpos), list(dpos)])
-        for i, yx in enumerate(cpos):
-            y, x = yx
+        for i, coords in enumerate(cpos):
+            y, x = coords
             if (y, x) in blocking:
                 blocker = True
                 for deltax in (-1, 1):
-                    if isfree(y, x + deltax, apos, bpos, cpos, dpos):
+                    if isfree(y, x + deltax, apos, bpos, cpos, dpos, open):
                         if i == 0:
                             dcpos = sorted([(y, x + deltax), cpos[1]])
                         else:
@@ -175,8 +177,8 @@ def solve_part_1(lines):
                         if t not in seen or seen[t] > energy + 100:
                             seen[t] = energy + 100
                             heappush(states, [energy + 100, list(apos), list(bpos), dcpos, list(dpos)])
-                if x == 7 and isfree(2, 7, apos, bpos, cpos, dpos):
-                    if not isfree(3, 7, apos, bpos, cpos, dpos) and not (3, 7) in cpos:
+                if x == 7 and isfree(2, 7, apos, bpos, cpos, dpos, open):
+                    if not isfree(3, 7, apos, bpos, cpos, dpos, open) and not (3, 7) in cpos:
                         continue
                     if i == 0:
                         dcpos = sorted([(2, 7), cpos[1]])
@@ -186,12 +188,12 @@ def solve_part_1(lines):
                     if t not in seen or seen[t] > energy + 100:
                         seen[t] = energy + 100
                         heappush(states, [energy + 100, list(apos), list(bpos), list(dcpos), list(dpos)])
-        for i, yx in enumerate(dpos):
-            y, x = yx
+        for i, coords in enumerate(dpos):
+            y, x = coords
             if (y, x) in blocking:
                 blocker = True
                 for deltax in (-1, 1):
-                    if isfree(y, x + deltax, apos, bpos, cpos, dpos):
+                    if isfree(y, x + deltax, apos, bpos, cpos, dpos, open):
                         if i == 0:
                             ddpos = sorted([(y, x + deltax), dpos[1]])
                         else:
@@ -200,8 +202,8 @@ def solve_part_1(lines):
                         if t not in seen or seen[t] > energy + 1000:
                             seen[t] = energy + 1000
                             heappush(states, [energy + 1000, list(apos), list(bpos), list(cpos), ddpos])
-                if x == 9 and isfree(2, 9, apos, bpos, cpos, dpos):
-                    if not isfree(3, 9, apos, bpos, cpos, dpos) and not (3, 9) in dpos:
+                if x == 9 and isfree(2, 9, apos, bpos, cpos, dpos, open):
+                    if not isfree(3, 9, apos, bpos, cpos, dpos, open) and not (3, 9) in dpos:
                         continue
                     if i == 0:
                         ddpos = sorted([(2, 9), dpos[1]])
@@ -215,7 +217,7 @@ def solve_part_1(lines):
         if blocker:
             continue
 
-        if apos != goala:
+        if apos != goal_a:
             for i in range(2):
                 for dy, dx in neighs(apos[i][0], apos[i][1]):
                     if (dy, dx) not in open:
@@ -230,7 +232,6 @@ def solve_part_1(lines):
                         continue
                     if (dy, dx) == (2, 9) and (apos[i][0], apos[i][1]) != (3, 9):
                         continue
-                    dapos = []
                     if i == 0:
                         dapos = sorted([(dy, dx), apos[1]])
                     else:
@@ -239,7 +240,7 @@ def solve_part_1(lines):
                     if t not in seen or seen[t] > energy + 1:
                         seen[t] = energy + 1
                         heappush(states, [energy + 1, list(dapos), list(bpos), list(cpos), list(dpos)])
-        if bpos != goalb:
+        if bpos != goal_b:
             for i in range(2):
                 for dy, dx in neighs(bpos[i][0], bpos[i][1]):
                     if (dy, dx) not in open:
@@ -262,7 +263,7 @@ def solve_part_1(lines):
                     if t not in seen or seen[t] > energy + 10:
                         seen[t] = energy + 10
                         heappush(states, [energy + 10, list(apos), list(dbpos), list(cpos), list(dpos)])
-        if cpos != goalc:
+        if cpos != goal_c:
             for i in range(2):
                 for dy, dx in neighs(cpos[i][0], cpos[i][1]):
                     if (dy, dx) not in open:
@@ -285,7 +286,7 @@ def solve_part_1(lines):
                     if t not in seen or seen[t] > energy + 100:
                         seen[t] = energy + 100
                         heappush(states, [energy + 100, list(apos), list(bpos), list(dcpos), list(dpos)])
-        if dpos != goald:
+        if dpos != goal_d:
             for i in range(2):
                 for dy, dx in neighs(dpos[i][0], dpos[i][1]):
                     if (dy, dx) not in open:
@@ -343,20 +344,6 @@ def solve_part_2(lines):
     c.sort()
     d.sort()
 
-    def tuplify(apos, bpos, cpos, dpos):
-        return (tuple(apos), tuple(bpos), tuple(cpos), tuple(dpos))
-
-    def isfree(y, x, apos, bpos, cpos, dpos):
-        if (y, x) not in open:
-            return False
-        if (y, x) in apos:
-            return False
-        if (y, x) in bpos:
-            return False
-        if (y, x) in cpos:
-            return False
-        return (y, x) not in dpos
-
     states = [[heuristic(a, b, c, d), 0, a, b, c, d]]
     seen = {(tuple(a), tuple(b), tuple(c), tuple(d)): 0}
 
@@ -373,12 +360,12 @@ def solve_part_2(lines):
             dpos = sorted(pos[:j] + [(y, x)] + pos[j + 1:])
             dapos, dbpos, dcpos, ddpos = allpos[:i] + [dpos] + allpos[i + 1:]
             t = tuplify(dapos, dbpos, dcpos, ddpos)
-            neweng = energy + steps * (10 ** i)
+            new_energy = energy + steps * (10 ** i)
 
-            if t not in seen or seen[t] > neweng:
-                seen[t] = neweng
+            if t not in seen or seen[t] > new_energy:
+                seen[t] = new_energy
                 dh = heuristic(dapos, dbpos, dcpos, ddpos)
-                heappush(states, [dh + neweng, neweng, dapos, dbpos, dcpos, ddpos])
+                heappush(states, [dh + new_energy, new_energy, dapos, dbpos, dcpos, ddpos])
 
         def cango(y1, x1, y2, x2):
             for dy, dx in paths[(y1, x1)][(y2, x2)][1:]:
@@ -394,27 +381,27 @@ def solve_part_2(lines):
                 y, x = yx
 
                 if y > 1:
-                    cangoup = True
-                    hasotherbelow = False
-                    hasclearturn = isfree(1, x - 1, apos, bpos, cpos, dpos) or isfree(1, x + 1, apos, bpos, cpos, dpos)
+                    can_go_up = True
+                    has_item_below = False
+                    can_turn = isfree(1, x - 1, apos, bpos, cpos, dpos, open) or isfree(1, x + 1, apos, bpos, cpos, dpos, open)
 
-                    if not hasclearturn:
+                    if not can_turn:
                         continue
 
                     for gy in range(1, y):
-                        if not isfree(gy, x, apos, bpos, cpos, dpos):
-                            cangoup = False
+                        if not isfree(gy, x, apos, bpos, cpos, dpos, open):
+                            can_go_up = False
 
-                    if not cangoup:
+                    if not can_go_up:
                         continue
 
                     for gy in range(y + 1, 6):
                         for gpos in [allpos[k] for k in range(len(allpos)) if k != i]:
                             if (gy, x) in gpos:
-                                hasotherbelow = True
+                                has_item_below = True
                                 break
 
-                    if x == rightcol and not hasotherbelow:
+                    if x == rightcol and not has_item_below:
                         continue
 
                     for gx in range(1, 12):
@@ -424,15 +411,15 @@ def solve_part_2(lines):
                         if cango(y, x, 1, gx):
                             explore(pos, i, j, 1, gx, len(paths[(y, x)][(1, gx)]) - 1)
                 else:
-                    hasotheratgoal = False
+                    is_other_at_goal_pos = False
 
                     for gy in range(2, 6):
                         for gpos in [allpos[k] for k in range(len(allpos)) if k != i]:
                             if (gy, rightcol) in gpos:
-                                hasotheratgoal = True
+                                is_other_at_goal_pos = True
                                 break
 
-                    if hasotheratgoal:
+                    if is_other_at_goal_pos:
                         continue
 
                     for gy in range(5, 1, -1):
